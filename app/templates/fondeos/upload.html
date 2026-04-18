@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Cargar Comprobante — CGB Fondeos{% endblock %}
+{% block page_title %}Cargar Comprobante{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-upload me-2 text-primary"></i>Nuevo Comprobante</h6>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('fondeos.upload') }}">
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Cuenta <span class="text-danger">*</span></label>
+              <input type="text" name="cuenta" class="form-control" placeholder="Nro. de cuenta" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Tipo de Origen <span class="text-danger">*</span></label>
+              {% if multiplicadores %}
+              <select name="tipo_origen" class="form-select" required>
+                <option value="" disabled selected>Seleccioná un tipo</option>
+                {% for m in multiplicadores %}
+                <option value="{{ m.tipo }}">{{ m.tipo | title }} (×{{ m.valor }})</option>
+                {% endfor %}
+              </select>
+              {% else %}
+              <div class="alert alert-warning py-2 mb-0 small">
+                No hay tipos de origen definidos.
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin.multiplicadores') }}">Agregá uno.</a>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Monto <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" name="monto" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Fecha Comprobante <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_comprobante" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Fecha Expiración <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_expiracion" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-medium">Archivo</label>
+              <input type="file" name="file" class="form-control" accept=".pdf,.png,.jpg,.jpeg">
+              <div class="form-text">PDF, PNG o JPG. Máximo 16 MB.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-medium">Observaciones</label>
+              <textarea name="observaciones" class="form-control" rows="2" placeholder="Opcional..."></textarea>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{{ url_for('fondeos.dashboard') }}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary fw-semibold">
+              <i class="bi bi-upload me-2"></i>Guardar Comprobante
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

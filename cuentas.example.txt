@@ -1,0 +1,4 @@
+# Cuentas a monitorear (una por línea). Copiá este archivo como cuentas.txt
+# Las líneas que empiezan con # son ignoradas.
+12345
+67890

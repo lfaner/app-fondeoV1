@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Perfil Transaccional — CGB Fondeos{% endblock %}
+{% block page_title %}Perfil Transaccional{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body py-3">
+    <form method="GET" action="{{ url_for('perfil.perfil_transaccional') }}" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small fw-medium">Cuenta</label>
+        <select name="cuenta" class="form-select form-select-sm">
+          <option value="">Todas las cuentas</option>
+          {% for c in todas_cuentas %}
+          <option value="{{ c }}" {% if c == cuenta_filtro %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-medium">Desde</label>
+        <input type="date" name="fecha_inicio" class="form-control form-control-sm" value="{{ fecha_inicio }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-medium">Hasta</label>
+        <input type="date" name="fecha_fin" class="form-control form-control-sm" value="{{ fecha_fin }}">
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-primary flex-grow-1">
+          <i class="bi bi-funnel me-1"></i>Filtrar
+        </button>
+        <a href="{{ url_for('perfil.perfil_transaccional') }}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-x"></i>
+        </a>
+      </div>
+    </form>
+    {% if fecha_min != '—' %}
+    <div class="mt-2 text-muted small">
+      <i class="bi bi-calendar3 me-1"></i>Movimientos disponibles: {{ fecha_min }} → {{ fecha_max }}
+      &nbsp;·&nbsp;
+      <i class="bi bi-clock me-1"></i>Última actualización: {{ ultima_actualizacion }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card stat-card shadow-sm">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-check2-circle"></i></div>
+        <div>
+          <div class="text-muted small">Cuentas OK</div>
+          <div class="fw-bold fs-4">{{ ok_count }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card stat-card shadow-sm">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="icon-box bg-danger bg-opacity-10 text-danger"><i class="bi bi-exclamation-triangle"></i></div>
+        <div>
+          <div class="text-muted small">Excedidas</div>
+          <div class="fw-bold fs-4">{{ excedidas }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 d-flex align-items-center justify-content-md-end gap-2">
+    {% if excedidas > 0 %}
+    <form method="POST" action="{{ url_for('casos.crear_casos') }}">
+      <button type="submit" class="btn btn-sm btn-warning fw-semibold">
+        <i class="bi bi-exclamation-triangle me-1"></i>Crear Casos Excedidos
+      </button>
+    </form>
+    {% endif %}
+    <a href="{{ url_for('perfil.exportar', cuenta=cuenta_filtro, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}"
+       class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-download me-1"></i>CSV
+    </a>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table id="tblPerfil" class="table table-hover align-middle mb-0" style="width:100%">
+        <thead class="table-light">
+          <tr>
+            <th>Cuenta</th>
+            <th class="text-end">Cupo Anual</th>
+            <th class="text-end">Depósitos ARS</th>
+            <th class="text-end">Diferencia</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in data %}
+          <tr class="{{ 'table-danger' if d.estado == 'Excedido' else '' }}">
+            <td class="fw-medium">{{ d.cuenta }}</td>
+            <td class="text-end">${{ "{:,.0f}".format(d.cupo_anual) }}</td>
+            <td class="text-end">${{ "{:,.0f}".format(d.depositos) }}</td>
+            <td class="text-end fw-semibold {{ 'text-danger' if d.diferencia < 0 else 'text-success' }}">
+              ${{ "{:,.0f}".format(d.diferencia) }}
+            </td>
+            <td>
+              <span class="badge rounded-pill {{ 'badge-ok' if d.estado == 'Ok' else 'badge-excedido' }}">
+                {{ d.estado }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $('#tblPerfil').DataTable({
+    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+    pageLength: 25,
+    order: [[4, 'asc']]
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Casos Abiertos — CGB Fondeos{% endblock %}
+{% block page_title %}Casos de Exceso{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <span class="badge bg-warning text-dark fs-6">{{ casos|length }} caso(s) abierto(s)</span>
+  </div>
+  <div class="d-flex gap-2">
+    <form method="POST" action="{{ url_for('casos.crear_casos') }}">
+      <button type="submit" class="btn btn-sm btn-warning fw-semibold">
+        <i class="bi bi-arrow-repeat me-1"></i>Actualizar Casos
+      </button>
+    </form>
+    <a href="{{ url_for('casos.casos_cerrados') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-archive me-1"></i>Ver Cerrados
+    </a>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table id="tblCasos" class="table table-hover align-middle mb-0" style="width:100%">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Cuenta</th>
+            <th class="text-end">Monto Excedido</th>
+            <th>Fecha Creación</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in casos %}
+          <tr>
+            <td class="text-muted">#{{ c.id }}</td>
+            <td class="fw-medium">{{ c.cuenta }}</td>
+            <td class="text-end text-danger fw-semibold">${{ "{:,.0f}".format(c.monto_excedido) }}</td>
+            <td>{{ c.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td><span class="badge rounded-pill badge-abierto">Abierto</span></td>
+            <td>
+              <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
+                      data-bs-target="#modalCerrar{{ c.id }}">
+                <i class="bi bi-check2 me-1"></i>Cerrar
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modals cerrar caso -->
+{% for c in casos %}
+<div class="modal fade" id="modalCerrar{{ c.id }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-semibold">Cerrar Caso — Cuenta {{ c.cuenta }}</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('casos.cerrar_caso', caso_id=c.id) }}">
+        <div class="modal-body">
+          <p class="text-muted small mb-3">
+            Monto excedido: <strong class="text-danger">${{ "{:,.0f}".format(c.monto_excedido) }}</strong>
+          </p>
+          <label class="form-label fw-medium">Observación</label>
+          <textarea name="observacion" class="form-control" rows="3"
+                    placeholder="Describirá el motivo del cierre..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success btn-sm fw-semibold">
+            <i class="bi bi-check2 me-1"></i>Cerrar Caso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $('#tblCasos').DataTable({
+    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+    pageLength: 25,
+    columnDefs: [{ orderable: false, targets: 5 }]
+  });
+</script>
+{% endblock %}

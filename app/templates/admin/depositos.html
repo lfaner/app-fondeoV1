@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Actualizar Depósitos — CGB Fondeos{% endblock %}
+{% block page_title %}Actualizar Depósitos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-semibold">
+          <i class="bi bi-arrow-repeat me-2 text-primary"></i>Sincronizar Movimientos con Aunesa
+        </h6>
+      </div>
+      <div class="card-body p-4">
+        {% if ultima_actualizacion != '—' %}
+        <div class="alert alert-info py-2 mb-4 small">
+          <i class="bi bi-clock me-2"></i>Última actualización: <strong>{{ ultima_actualizacion }}</strong>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('admin.actualizar_depositos') }}">
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <label class="form-label fw-medium">Fecha Desde <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_desde" class="form-control" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-medium">Fecha Hasta <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_hasta" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="alert alert-warning py-2 small mb-4">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Los movimientos del período seleccionado serán reemplazados con los datos más recientes de la API.
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 fw-semibold">
+            <i class="bi bi-arrow-repeat me-2"></i>Actualizar Depósitos
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

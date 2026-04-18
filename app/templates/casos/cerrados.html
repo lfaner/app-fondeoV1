@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Casos Cerrados — CGB Fondeos{% endblock %}
+{% block page_title %}Casos Cerrados{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="badge bg-secondary fs-6">{{ casos|length }} caso(s) cerrado(s)</span>
+  <a href="{{ url_for('casos.lista_casos') }}" class="btn btn-sm btn-outline-primary">
+    <i class="bi bi-arrow-left me-1"></i>Ver Abiertos
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table id="tblCerrados" class="table table-hover align-middle mb-0" style="width:100%">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Cuenta</th>
+            <th class="text-end">Monto Excedido</th>
+            <th>Fecha Creación</th>
+            <th>Fecha Cierre</th>
+            <th>Observaciones</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in casos %}
+          <tr>
+            <td class="text-muted">#{{ c.id }}</td>
+            <td class="fw-medium">{{ c.cuenta }}</td>
+            <td class="text-end">${{ "{:,.0f}".format(c.monto_excedido) }}</td>
+            <td>{{ c.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+            <td>{{ c.fecha_cierre.strftime('%d/%m/%Y %H:%M') if c.fecha_cierre else '—' }}</td>
+            <td class="text-muted small">{{ c.observaciones or '—' }}</td>
+            <td><span class="badge rounded-pill badge-cerrado">Cerrado</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $('#tblCerrados').DataTable({
+    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+    pageLength: 25,
+    order: [[4, 'desc']]
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,26 @@
+# Entorno virtual
+venv/
+.venv/
+
+# Variables de entorno (contiene credenciales)
+.env
+
+# Uploads
+uploads/
+
+# Cuentas (datos sensibles)
+cuentas.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+instance/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Multiplicadores — CGB Fondeos{% endblock %}
+{% block page_title %}Multiplicadores de Origen{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-plus-circle me-2 text-primary"></i>Agregar / Actualizar</h6>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.multiplicadores') }}">
+          <div class="mb-3">
+            <label class="form-label fw-medium">Tipo de Origen</label>
+            <input type="text" name="tipo" class="form-control" placeholder="ej: sueldo, venta inmueble" required>
+            <div class="form-text">Se guardará en minúsculas.</div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-medium">Multiplicador Anual</label>
+            <input type="number" name="valor" class="form-control" placeholder="ej: 8" step="0.01" min="0" required>
+            <div class="form-text">Cuántas veces el monto del comprobante determina el cupo anual.</div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 fw-semibold">
+            <i class="bi bi-save me-2"></i>Guardar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-semibold">Multiplicadores Definidos ({{ multiplicadores|length }})</h6>
+      </div>
+      <div class="card-body p-0">
+        {% if multiplicadores %}
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr><th>Tipo de Origen</th><th class="text-center">Multiplicador</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for m in multiplicadores %}
+            <tr>
+              <td class="fw-medium">{{ m.tipo | title }}</td>
+              <td class="text-center">
+                <span class="badge bg-primary bg-opacity-10 text-primary fs-6">×{{ m.valor }}</span>
+              </td>
+              <td class="text-end">
+                <form method="POST" action="{{ url_for('admin.eliminar_multiplicador', mult_id=m.id) }}"
+                      onsubmit="return confirm('¿Eliminar {{ m.tipo }}?')">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-sliders fs-1 d-block mb-2"></i>
+          No hay multiplicadores definidos.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
