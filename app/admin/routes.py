@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import subprocess
 from datetime import datetime
@@ -113,7 +114,11 @@ def actualizar_depositos():
 
         script_path = os.path.join(BASE_DIR, 'scripts', 'actualizar_movimientos.py')
         try:
-            subprocess.run(['python', script_path], check=True, timeout=300)
+            result = subprocess.run(
+                [sys.executable, script_path],
+                check=True, timeout=300,
+                capture_output=True, text=True,
+            )
 
             cfg = ConfigSistema.query.get('ultima_actualizacion')
             ahora = datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -125,7 +130,8 @@ def actualizar_depositos():
 
             flash('Depósitos actualizados correctamente.', 'success')
         except subprocess.CalledProcessError as e:
-            flash(f'Error al ejecutar el script: {e}', 'error')
+            detalle = e.stderr.strip() if e.stderr else str(e)
+            flash(f'Error al ejecutar el script: {detalle}', 'error')
         except subprocess.TimeoutExpired:
             flash('El proceso tardó demasiado y fue cancelado.', 'error')
 

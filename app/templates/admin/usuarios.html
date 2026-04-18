@@ -13,12 +13,22 @@
   <div class="card-body p-0">
     <table class="table table-hover align-middle mb-0">
       <thead class="table-light">
-        <tr><th>Usuario</th><th>Fecha Registro</th><th>Acciones</th></tr>
+        <tr><th>Usuario</th><th>Email</th><th>Email verificado</th><th>Fecha Registro</th><th>Acciones</th></tr>
       </thead>
       <tbody>
         {% for u in pendientes %}
         <tr>
           <td class="fw-medium">{{ u.username }}</td>
+          <td class="text-muted small">{{ u.email or '—' }}</td>
+          <td>
+            {% if u.email_verificado %}
+              <span class="badge bg-success">Verificado</span>
+            {% elif u.email %}
+              <span class="badge bg-secondary">Pendiente</span>
+            {% else %}
+              <span class="badge bg-light text-muted">Sin email</span>
+            {% endif %}
+          </td>
           <td class="text-muted small">{{ u.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
           <td>
             <div class="d-flex gap-2">
@@ -50,12 +60,13 @@
   <div class="card-body p-0">
     <table class="table table-hover align-middle mb-0">
       <thead class="table-light">
-        <tr><th>Usuario</th><th>Rol</th><th>Fecha Registro</th></tr>
+        <tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Fecha Registro</th></tr>
       </thead>
       <tbody>
         {% for u in aprobados %}
         <tr>
           <td class="fw-medium">{{ u.username }}</td>
+          <td class="text-muted small">{{ u.email or '—' }}</td>
           <td>
             <span class="badge {{ 'bg-primary' if u.role == 'admin' else 'bg-secondary' }}">{{ u.role }}</span>
           </td>

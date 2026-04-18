@@ -32,7 +32,7 @@ try:
     fecha_desde = fechas.get('fecha_desde', '')
     fecha_hasta = fechas.get('fecha_hasta', '')
 except FileNotFoundError:
-    print('❌ fechas_config.json no encontrado.')
+    print('ERROR: fechas_config.json no encontrado.')
     sys.exit(1)
 
 try:
@@ -48,10 +48,10 @@ try:
     with open(cuentas_path) as f:
         cuentas = [l.strip() for l in f if l.strip() and not l.startswith('#')]
 except FileNotFoundError:
-    print('❌ cuentas.txt no encontrado.')
+    print('ERROR: cuentas.txt no encontrado.')
     sys.exit(1)
 
-print(f'🗓️  Procesando {len(cuentas)} cuenta(s): {fecha_desde_api} → {fecha_hasta_api}')
+print(f'Procesando {len(cuentas)} cuenta(s): {fecha_desde_api} - {fecha_hasta_api}')
 
 # ── Login API ─────────────────────────────────────────────────────────────────
 resp = requests.post(
@@ -90,7 +90,7 @@ def procesar_cuenta(id_cuenta):
                 ))
         return filtrados
     except Exception as e:
-        print(f'⚠️  Error en cuenta {id_cuenta}: {e}')
+        print(f'WARN: Error en cuenta {id_cuenta}: {e}')
         return []
 
 
@@ -99,7 +99,7 @@ with ThreadPoolExecutor(max_workers=5) as pool:
     resultados = list(pool.map(procesar_cuenta, cuentas))
 
 movimientos = [item for sublist in resultados for item in sublist]
-print(f'✅ {len(movimientos)} movimiento(s) encontrado(s).')
+print(f'OK: {len(movimientos)} movimiento(s) encontrado(s).')
 
 if not movimientos:
     sys.exit(0)
@@ -121,6 +121,6 @@ try:
                    VALUES %s''',
                 movimientos,
             )
-    print(f'✅ Base de datos actualizada con {len(movimientos)} registro(s).')
+    print(f'OK: Base de datos actualizada con {len(movimientos)} registro(s).')
 finally:
     conn.close()

@@ -1,0 +1,21 @@
+{% extends "base_auth.html" %}
+{% block title %}Verificá tu email — CGB Fondeos{% endblock %}
+{% block content %}
+<div class="card auth-card">
+  <div class="card-body p-4 text-center">
+    <i class="bi bi-envelope-check fs-1 text-primary mb-3 d-block"></i>
+    <h5 class="card-title fw-bold mb-3">Revisá tu email</h5>
+    <p class="text-muted mb-3">
+      Te enviamos un enlace de verificación. Hacé clic en el link para activar tu cuenta.
+    </p>
+    <p class="text-muted small mb-0">
+      El enlace expira en <strong>1 hora</strong>.<br>
+      Una vez verificado tu email, el administrador deberá aprobar tu cuenta.
+    </p>
+  </div>
+</div>
+<p class="text-center text-white-50 mt-3 small">
+  ¿Ya verificaste?
+  <a href="{{ url_for('auth.login') }}" class="text-white">Ingresá</a>
+</p>
+{% endblock %}
