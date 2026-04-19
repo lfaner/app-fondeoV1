@@ -139,15 +139,43 @@ venv/Scripts/python.exe run.py
 
 ## Script de movimientos
 
+### Estrategia actual: Playwright (web scraping)
+
+`scripts/mov_diario.py` reemplaza al anterior `actualizar_movimientos.py` basado en REST API.
+
 ```bash
 # Editar fechas_config.json con el rango deseado, luego:
-venv/Scripts/python.exe scripts/actualizar_movimientos.py
+venv/Scripts/python.exe scripts/mov_diario.py
 ```
 
-- Conecta a API Aunesa con credenciales del `.env`
-- Lee cuentas de `cuentas.txt`
+- Usa **Playwright + Chromium** para hacer login en la UI web de Aunesa
+- Navega a **Informes de auditoría (AN/AP) → Registro de ingresos/egresos**
+- Tilda el checkbox **Concertación** antes de descargar
+- Descarga un Excel con **todos los movimientos de todas las cuentas** del período
+- No requiere `cuentas.txt` — el reporte ya trae todas las cuentas
+- Parsea el Excel con **openpyxl** y guarda en tabla `movimientos` de PostgreSQL
 - Elimina registros del período antes de insertar (evita duplicados)
-- Guarda en tabla `movimientos` de PostgreSQL
+
+**Columnas del Excel descargado:**
+`Comprobante | Liquidación | Concertación | Alta | Cuenta | Denominación | Unidad | Información | Referencia | Cantidad`
+
+- `Referencia` contiene `[ID] TipoOperacion` (ej: `[4166836] Depósito`)
+- `Cantidad`: openpyxl la lee como `float` nativo (no como string). **Negativo = débito (D), Positivo = crédito (A).** El signo se preserva tal como viene.
+- `Unidad`: ARS / USD / USDC (puede haber otros)
+
+**Columnas calculadas por el script (no vienen en el Excel):**
+- `monto_ars`: si USD → `cantidad * MEP`; si USDC → `cantidad * CCL`; si ARS → `cantidad`
+- `monto_usd`: si ARS → `cantidad / MEP`; si USDC → `cantidad * CCL / MEP`; si USD → `cantidad`
+- `MEP` y `CCL` se leen de `.env` como `USD_MEP` y `USD_CCL` (constantes por ahora, futuro: serie de datos)
+
+**Dependencias adicionales requeridas:**
+```bash
+venv/Scripts/pip.exe install openpyxl playwright
+venv/Scripts/playwright.exe install chromium
+```
+
+### Script legacy (REST API)
+`scripts/actualizar_movimientos.py` — ya no se usa. Requería `cuentas.txt` con IDs de cuentas y filtraba por campo `concepto` que no está documentado en la API oficial.
 
 ---
 
